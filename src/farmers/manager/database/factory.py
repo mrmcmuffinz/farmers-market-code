@@ -14,10 +14,11 @@ class ConnectionFactory(ABC):
         pass
     
 def get_mongodb_properties():
+    port = int(os.getenv("MONGODB_PORT")) if os.getenv("MONGODB_PORT") else None
     properties = {
         "db": os.getenv("MONGODB_DATABASE"),
         "host": os.getenv("MONGODB_HOST"),
-        "port": os.getenv("MONGODB_PORT"),
+        "port": port,
         "user": os.getenv("MONGODB_USERNAME"),
         "password": os.getenv("MONGODB_PASSWORD")
     }

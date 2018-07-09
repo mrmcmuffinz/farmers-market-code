@@ -1,0 +1,20 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-cleanup
+spec:
+  template:
+    spec:
+      containers:
+      - name: mongodb-cleanup
+        image: alpine
+        command: ["rm",  "-rf", "/data/data/*"]
+        volumeMounts:
+          - mountPath: "/data/data/"
+            name: mongodata-pv-storage
+      restartPolicy: Never
+      volumes:
+        - name: mongodata-pv-storage
+          persistentVolumeClaim:
+            claimName: mongodata-pv-claim

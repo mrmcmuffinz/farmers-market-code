@@ -22,8 +22,7 @@ class InventoryManager():
         :returns: True if success else False. \n
         :rtype: boolean.
         """
-        if price and not isinstance(price, float):
-            raise TypeError("Price must be of type float!")
+        price = float(price)
         _item = item.ItemDAO()
         return _item.create(code, name, price)
     
@@ -58,8 +57,6 @@ class InventoryManager():
         """
         if not _name and not _price:
             raise ValueError("Item name and price cannot be None")
-        if _price and not isinstance(_price, float):
-            raise TypeError("Price must be of type float!")
         _item = item.ItemDAO()
         if _item.update(code, name=_name, price=_price):
             return True

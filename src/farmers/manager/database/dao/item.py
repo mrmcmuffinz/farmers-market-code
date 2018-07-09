@@ -94,11 +94,11 @@ class ItemDAO():
             with connection_factory.get_connection() as client:
                 _filter = {"code": code}
                 if name and price:
-                    update = {"name": name, "price": price}
+                    update = {"name": name, "price": float(price)}
                 elif name:
                     update = {"name": name}
                 else:
-                    update = {"price", price}
+                    update = {"price", float(price)}
                 document = client.farmers.inventory.find_one_and_update(_filter,
                                                                         {"$set": update},
                                                                         return_document=ReturnDocument.AFTER)

@@ -22,13 +22,13 @@ def handle_add(code, name, price):
     :rtype: boolean.
     """
     inventory_manager = InventoryManager()
-    try:
-        if inventory_manager.add(code, name, price):
-            print("Item added succesfully")
-            return True
-    except TypeError as type_error:
-        print("Failed to add item because price is not of type float.")
-        return False
+    #try:
+    if inventory_manager.add(code, name, price):
+        print("Item added succesfully")
+        return True
+    #except TypeError as type_error:
+    #    print("Failed to add item because price is not of type float.")
+    #    return False
     print("Could not add item to inventory!")
     return False
 
@@ -68,10 +68,10 @@ def handle_update(code, field, value):
     try:
         success = False
         inventory_manager = InventoryManager()
-        if field == "name" and isinstance(value, str):
+        if field == "name":
             success = inventory_manager.update(code, _name=value)
-        elif field == "price" and isinstance(value, float):
-            success = inventory_manager.update(code, _price=value)
+        elif field == "price":
+            success = inventory_manager.update(code, _price=float(value))
         else:
             return TypeError("value has incorrect type")
         if success:

@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  mongodb.database: farmers
+  mongodb.host: mongodb.farmers-market-123.svc.cluster.local
+  mongodb.port: "27017"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: farmers-app-config
