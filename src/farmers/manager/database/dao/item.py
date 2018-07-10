@@ -1,7 +1,7 @@
 # Copyright 2018, Abraham Cabrera.
 import logging
 
-from farmers.manager.database import factory, exceptions
+from farmers.manager.database import factory
 
 # This is a hack for exception handling, ideally we would override 
 # the connection functions exception and throw our own customer exception instead.
@@ -88,9 +88,9 @@ class ItemDAO():
         """
         if not code and not name:
             raise ValueError("Need to supply either item code or name!")
-        connection_factory = factory.connection_factory(self.connection_factory_type)
         document = None
         try:
+            connection_factory = factory.connection_factory(self.connection_factory_type)
             with connection_factory.get_connection() as client:
                 _filter = {"code": code}
                 if name and price:
@@ -98,7 +98,7 @@ class ItemDAO():
                 elif name:
                     update = {"name": name}
                 else:
-                    update = {"price", float(price)}
+                    update = {"price": float(price)}
                 document = client.farmers.inventory.find_one_and_update(_filter,
                                                                         {"$set": update},
                                                                         return_document=ReturnDocument.AFTER)
