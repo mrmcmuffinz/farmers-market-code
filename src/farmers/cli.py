@@ -4,6 +4,7 @@ import argparse
 import sys
 
 from farmers.manager.inventory import InventoryManager
+from farmers.manager.orders import BasketManager
 from prettytable import PrettyTable
 from pprint import pprint
 
@@ -154,49 +155,131 @@ def handle_list_items(format):
     return True
 
 
+def handle_basket_create(codes):
+    """
+    Handler for basket create operation.
+    """
+    bm = BasketManager()
+    basket = bm.create(codes)
+    print("Basket was created with id: {0}".format(basket))
+    return True
+
+
+def handle_basket_checkout(_id):
+    """
+    Handler for basket checkout operation.
+    """
+    bm = BasketManager()
+    return bm.checkout(_id)
+
+
+def handle_basket_cancel(_id):
+    """
+    Handler for basket cancel operation.
+    """
+    bm = BasketManager()
+    return bm.cancel(_id)
+
+
+def handle_basket_add_item(code):
+    """
+    Handler for basket add item operation.
+    """
+    bm = BasketManager()
+    return bm.additem(code)
+
+
+def handle_basket_remove_item(code):
+    """
+    Handler for basket add item operation.
+    """
+    bm = BasketManager()
+    return bm.removeitem(code)
+
+
+def handle_basket_print(_id, format):
+    """
+    Handler for basket print operation.
+    """
+    bm = BasketManager()
+    print(bm.get(_id))
+    return True
+
+
 def handle_args(args):
     status = False
-    if args.command == "add":
+    if args.command == "inventory-add":
         status = handle_add(args.code, args.name, args.price)
-    elif args.command == "remove":
+    elif args.command == "inventory-remove":
         status = handle_remove(args.code)
-    elif args.command == "get":
+    elif args.command == "inventory-get":
         status = handle_get(args.field, args.value, args.format)
-    elif args.command == "update":
+    elif args.command == "inventory-update":
         status = handle_update(args.code, args.field, args.value)
+    elif args.command == "inventory-list":
+        status = handle_list_items(args.format)
+    elif args.command == "basket-add":
+        status = handle_basket_add_item(args.code)
+    elif args.command == "basket-create":
+        status = handle_basket_create(args.codes)
+    elif args.command == "basket-checkout":
+        status = handle_basket_checkout(args.id)
+    elif args.command == "basket-cancel":
+        status = handle_basket_cancel(args.id)
+    elif args.command == "basket-print":
+        status = handle_basket_print(args.id)
+    elif args.command == "basket-remove":
+        status = handle_basket_remove_item(args.code)
     else:
-        status = result = handle_list_items(args.format)
+        print("Unsupported command")
     return status
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Farmers Market Inventory Manager cli")
+    parser = argparse.ArgumentParser(description="Farmers Market Manager cli")
 
-    inventory_parsers = parser.add_subparsers(dest="command")
+    parsers = parser.add_subparsers(dest="command")
     
-    inventory_add_parser = inventory_parsers.add_parser("add", help="Add item to inventory.")
+    inventory_add_parser = parsers.add_parser("inventory-add", help="Add item to inventory.")
     inventory_add_parser.add_argument("--code", type=str, required=True, help="code of item to add.")
     inventory_add_parser.add_argument("--name", type=str, required=True, help="name of item to add.")
     inventory_add_parser.add_argument("--price", type=float, required=True, help="price of item to add.")
 
-    inventory_remove_parser = inventory_parsers.add_parser("remove", help="Remove item from inventory")
+    inventory_remove_parser = parsers.add_parser("inventory-remove", help="Remove item from inventory")
     inventory_remove_parser.add_argument("--code", type=str, required=True, help="code of item to remove.")
 
-    inventory_get_parser = inventory_parsers.add_parser("get", help="Get item from inventory.")
+    inventory_get_parser = parsers.add_parser("inventory-get", help="Get item from inventory.")
     inventory_get_parser.add_argument("--field", choices=["code", "name"], help="Get item by code.")
     inventory_get_parser.add_argument("--value", help="Get name by code.")
     inventory_get_parser.add_argument("--format", choices=["pretty", "json"], default="pretty", help="Format to print the item.")
 
-    inventory_update_parser = inventory_parsers.add_parser("update", help="Update item from inventory.")
+    inventory_update_parser = parsers.add_parser("inventory-update", help="Update item from inventory.")
     inventory_update_parser.add_argument("--code", type=str, required=True, help="code of item to update.")
     inventory_update_parser.add_argument("--field", choices=["name", "price"], help="Name of item to update.")
     inventory_update_parser.add_argument("--value", help="Price of item to update.")
 
-    inventory_list_parser = inventory_parsers.add_parser("list", help="List items in inventory")
+    inventory_list_parser = parsers.add_parser("inventory-list", help="List items in inventory")
     inventory_list_parser.add_argument("--format", choices=["pretty", "json"], default="pretty", help="Format to print the items.")
 
-    args = parser.parse_args()
+    basket_add_parser = parsers.add_parser("basket-add", help="Add item to basket.")
+    basket_add_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to add to bucket.")
 
+    basket_cancel_parser = parsers.add_parser("basket-cancel", help="Cancel basket.")
+    basket_cancel_parser.add_argument("--id", required=True, help="Id of basket to cancel")
+
+    basket_checkout_parser = parsers.add_parser("basket-checkout", help="Checkout basket.")
+    basket_checkout_parser.add_argument("--id", required=True, help="Id of basket to checkout")
+
+    basket_create_parser = parsers.add_parser("basket-create", help="Create Basket.")
+    basket_create_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to add during creation of bucket.")
+
+    basket_print_parser = parsers.add_parser("basket-print", help="Print basket.")
+    basket_print_parser.add_argument("--format", choices=["pretty", "json"], default="pretty", help="Format to print the item.")
+
+    basket_remove_parser = parsers.add_parser("basket-remove", help="Remove item from basket.")
+    basket_remove_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to remove from bucket.")
+
+    args = parser.parse_args()
     status = handle_args(args)
     return 0 if status else 1
 
