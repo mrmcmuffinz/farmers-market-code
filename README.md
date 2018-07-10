@@ -6,4 +6,4 @@ This was an educational execise to build an application on top of Kubernetes usi
 
 # Getting Started
 
-Please visit the [getting started](docs/getting.started.md) page.
+Please visit the [getting started](docs/getting-started.md) page.
