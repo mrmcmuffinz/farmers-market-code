@@ -8,6 +8,8 @@
 
 1. Run docker build command.
 
+Note: Since we are running this on minikube and we are using local docker, we will need to run `eval $(minikube docker-env)` prior to building the image in order for minikube to know where to get the docker image from. 
+
 command: `docker build . -f Dockerfile -t farmers-market:1.1.6`
 
 # How to deploy code?
@@ -16,18 +18,14 @@ command: `docker build . -f Dockerfile -t farmers-market:1.1.6`
 
 2. `./deploy.sh`
 
-# How to add items to farmers inventory?
+# How to cleanup resources in minikube?
 
-1. Get the pods in the farmers namespace
+1. `cd scripts`
 
-command: kubectl -n farmers-market-123 get pods
+2. `./cleanup.sh`
 
-2. Exec into the farmers pod.
+# How to interact with farmers app inside docker container deployed to minikube?
 
-command: `kubectl -n farmers-market-123 exec -it farmers-app-646ccd6cbf-6n4vm bash`
+1. `export CLI_POD=$(kubectl -n farmers-market-123 get pod -l 'run==farmers-app' -o jsonpath='{.items[*].metadata.name}')`
 
-3. Run the farmers cli inventory add command.
-
-##### Examples:
-
-
+2. `kubectl -n farmers-market-123 exec -it "$CLI_POD" bash`
