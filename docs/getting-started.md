@@ -10,7 +10,7 @@
 
 Note: Since we are running this on minikube and we are using local docker, we will need to run `eval $(minikube docker-env)` prior to building the image in order for minikube to know where to get the docker image from. 
 
-command: `docker build . -f Dockerfile -t farmers-market:1.1.6`
+command: `docker build . -f Dockerfile -t farmers-market:1.1.7`
 
 # How to deploy code?
 
