@@ -13,6 +13,8 @@ setup(name='farmers',
       install_requires=[
           "prettytable",
           "pymongo==3.7.0",
+          "pytest==3.6.3",
+          "pytest-sugar==0.9.1",
       ],
       entry_points={
           "console_scripts": [

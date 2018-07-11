@@ -8,7 +8,7 @@
 
 1. Run docker build command.
 
-command: `docker build . -f Dockerfile -t farmers-market:1.1.5`
+command: `docker build . -f Dockerfile -t farmers-market:1.1.6`
 
 # How to deploy code?
 

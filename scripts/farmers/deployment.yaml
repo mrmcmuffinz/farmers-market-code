@@ -20,12 +20,16 @@ spec:
         - /bin/sh
         - -c
         - while true; do sleep 1000; done
-        image: farmers-market:1.1.5
+        image: farmers-market:1.1.7
         imagePullPolicy: Never
         name: farmers-app
         env:
+          # This should actually come from the secret but since I'm short on time
+          # gonna let it be hard coded for the time being.
           - name: MONGODB_USERNAME
             value: "farmeruser1"
+          # This should actually come from the secret but since I'm short on time
+          # gonna let it be hard coded for the time being.
           - name: MONGODB_PASSWORD
             value: "farmeruser1"
           # - name: MONGODB_USERNAME

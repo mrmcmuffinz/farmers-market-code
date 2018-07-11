@@ -1,6 +1,7 @@
 # Copyright 2018 Abraham Cabrera.
 
 import argparse
+import math
 import sys
 
 from farmers.manager.inventory import InventoryManager
@@ -181,28 +182,105 @@ def handle_basket_cancel(_id):
     return bm.cancel(_id)
 
 
-def handle_basket_add_item(code):
+def handle_basket_add_item(_id, code):
     """
     Handler for basket add item operation.
     """
     bm = BasketManager()
-    return bm.additem(code)
+    return bm.additem(_id, code)
 
 
-def handle_basket_remove_item(code):
+def handle_basket_remove_item(_id, code):
     """
     Handler for basket add item operation.
     """
     bm = BasketManager()
-    return bm.removeitem(code)
+    return bm.removeitem(_id, code)
 
+
+def determine_basket_promos(codes):
+    """
+    Determine Promotional Rules.
+
+    :param codes: List of item codes. \n
+    :type codes: list. \n
+    :returns: dictionary of items with promos.
+    :rtype: dict
+    """
+    items = {}
+    inventory_manager = InventoryManager()
+    subtotal = float(0.00)
+    for code in codes:
+        item = inventory_manager.get(_code=code)
+        subtotal = subtotal + item["price"]
+        if code not in items:
+            items[code] = {"count": 1,
+                            "price": item["price"],
+                            "promo": "",
+                            "promo-count": 0, 
+                            "promo-price": float(0)}
+        else:
+            items[code]["count"] = items[code]["count"] + 1
+        # Applying promo rules.
+        # BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
+        if "CF1" in items and items[code]["count"] % 2 == 0:
+            items[code]["promo"] = "BOGO"
+            items[code]["promo-count"] = int(math.floor(items[code]["count"] / 2))
+            items[code]["promo-price"] = (-1) * items[code]["price"]
+        # CHMK -- Purchase a box of Chai and get milk free. (Limit 1)
+        if "MK1" in items and "CH1" in items:
+            if items["MK1"]["promo-count"] == 0:
+                items["MK1"]["promo"] = "CHMK"
+                items["MK1"]["promo-count"] = 1
+                items["MK1"]["promo-price"] = (-1) * items["MK1"]["price"]
+        # APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
+        if "AP1" in items and items["AP1"]["count"] >= 3:
+            items["AP1"]["promo"] = "APPL"
+            items["AP1"]["promo-count"] = items["AP1"]["count"]
+            items["AP1"]["promo-price"] = (-1.00) * 1.50
+        # Missing rule for APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
+    return items
 
 def handle_basket_print(_id, format):
     """
     Handler for basket print operation.
     """
-    bm = BasketManager()
-    print(bm.get(_id))
+    basket = BasketManager().get(_id)
+    if not basket:
+        print("Basket could not be found.")
+        return False
+    if format == "pretty":
+        codes = basket["items"]
+        if codes:
+            items = determine_basket_promos(codes)
+            subtotal = float(0.0)
+            promos = float(0.0)
+            pretty_table = PrettyTable()
+            pretty_table.field_names = ["Item", "Promo", "Promo-count", "Price"]
+            for item in items:
+                subtotal = subtotal + (items[item]["price"] * items[item]["count"])
+                promos = promos + (items[item]["promo-price"] * items[item]["promo-count"])
+                for idx in range(1, items[item]["count"]):
+                    pretty_table.add_row([item, "", "", "${0:.2f}".format(items[item]["price"])])
+                if items[item]["promo-count"] > 0:
+                    pretty_table.add_row(["", 
+                                          items[item]["promo"],
+                                          items[item]["promo-count"],
+                                          "${0:.2f}".format(items[item]["promo-price"])])
+            total = subtotal + promos
+            difference = subtotal - total
+            print(pretty_table)
+            print("Subtotal: ${0:.2f}".format(subtotal))
+            print("Total: ${0:.2f}".format(total))
+            if difference > 0:
+                print("You saved: ${0:.2f}".format(difference))
+        else:
+            print("Not items in basket.")
+    elif format == "json":
+        pprint(basket)
+    else:
+        print("Invalid format option.")
+        return False
     return True
 
 
@@ -219,7 +297,7 @@ def handle_args(args):
     elif args.command == "inventory-list":
         status = handle_list_items(args.format)
     elif args.command == "basket-add":
-        status = handle_basket_add_item(args.code)
+        status = handle_basket_add_item(args.id, args.code)
     elif args.command == "basket-create":
         status = handle_basket_create(args.codes)
     elif args.command == "basket-checkout":
@@ -227,9 +305,9 @@ def handle_args(args):
     elif args.command == "basket-cancel":
         status = handle_basket_cancel(args.id)
     elif args.command == "basket-print":
-        status = handle_basket_print(args.id)
+        status = handle_basket_print(args.id, args.format)
     elif args.command == "basket-remove":
-        status = handle_basket_remove_item(args.code)
+        status = handle_basket_remove_item(args.id, args.code)
     else:
         print("Unsupported command")
     return status
@@ -262,7 +340,8 @@ def main():
     inventory_list_parser.add_argument("--format", choices=["pretty", "json"], default="pretty", help="Format to print the items.")
 
     basket_add_parser = parsers.add_parser("basket-add", help="Add item to basket.")
-    basket_add_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to add to bucket.")
+    basket_add_parser.add_argument("--id", required=True, help="Id of basket to add to")
+    basket_add_parser.add_argument("-c", "--code", required=True, help="codes of items to add to bucket.")
 
     basket_cancel_parser = parsers.add_parser("basket-cancel", help="Cancel basket.")
     basket_cancel_parser.add_argument("--id", required=True, help="Id of basket to cancel")
@@ -274,10 +353,12 @@ def main():
     basket_create_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to add during creation of bucket.")
 
     basket_print_parser = parsers.add_parser("basket-print", help="Print basket.")
+    basket_print_parser.add_argument("--id", required=True, help="Id of basket to print")
     basket_print_parser.add_argument("--format", choices=["pretty", "json"], default="pretty", help="Format to print the item.")
 
     basket_remove_parser = parsers.add_parser("basket-remove", help="Remove item from basket.")
-    basket_remove_parser.add_argument("-c", "--codes", nargs='+', required=True, help="codes of items to remove from bucket.")
+    basket_remove_parser.add_argument("--id", required=True, help="Id of basket to print")
+    basket_remove_parser.add_argument("-c", "--code", required=True, help="codes of items to remove from bucket.")
 
     args = parser.parse_args()
     status = handle_args(args)

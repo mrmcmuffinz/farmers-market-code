@@ -9,9 +9,12 @@ spec:
       containers:
       - name: mongodb-cleanup
         image: alpine
-        command: ["rm",  "-rf", "/data/data/*"]
+        command:
+        - /bin/sh
+        - -c
+        - echo "Before cleanup" && ls -l /data/db/ && rm -rf /data/db/* && echo "After cleanup" && ls -l /data/db/
         volumeMounts:
-          - mountPath: "/data/data/"
+          - mountPath: "/data/db"
             name: mongodata-pv-storage
       restartPolicy: Never
       volumes:

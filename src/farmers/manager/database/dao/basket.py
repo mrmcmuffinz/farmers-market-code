@@ -125,6 +125,7 @@ class BasketDAO():
         try:
             with connection_factory.get_connection() as client:
                 document = {"items": codes,
+                            "promos": [],
                             "state": BasketState.OPEN.name,
                             "created": datetime.datetime.utcnow()}
                 basket = client.farmers.basket.save(document)
