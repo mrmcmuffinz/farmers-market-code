@@ -1,6 +1,8 @@
 
 # Farmers Market CLI
 
+Welcome to farmers market cli, below you can see some examples of how to use it.
+
 # Help Menu
 
 ```
@@ -57,64 +59,4 @@ $ farmers inventory-add --code="MK1" --name="Milk" --price=4.75
 Item added succesfully
 $ farmers inventory-add --code="OM1" --name="Oatmeal" --price=3.69
 Item added succesfully
-```
-
-# Remove item from inventory:
-
-```
-$ farmers inventory-remove --code="MK1"
-Item removed succesfully.
-```
-
-# Get item from Inventory:
-
-```
-$ farmers inventory-get --field=code --value=AP1
-+------+--------+-------+
-| Code |  Name  | Price |
-+------+--------+-------+
-| AP1  | Apples |  $6.0 |
-+------+--------+-------+
-```
-
-# Create Basket:
-
-```
-<insert-here>
-```
-
-# Add Item to Basket:
-
-```
-<insert-here>
-```
-
-# Remove item from Basket:
-
-```
-<insert-here>
-```
-
-# Cancel Basket:
-
-```
-<insert-here>
-```
-
-# Apply promo to Basket:
-
-```
-<insert-here>
-```
-
-# Checkout Basket:
-
-```
-<insert-here>
-```
-
-# Print Basket:
-
-```
-<insert-here>
 ```
