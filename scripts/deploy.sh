@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 export NS=farmers-market-123
 
 # create storage for mongodb.
@@ -15,7 +17,7 @@ kubectl -n "$NS" create -f mongo/deployment.yaml
 kubectl -n "$NS" create -f mongo/clusterip-svc.yaml
 
 # TODO: Have some type of job to insert data into our mongodb.
-sleep 10s
+sleep 25s
 
 export MONGO_POD=$(kubectl -n "$NS" get pod -l 'run==mongodb' -o jsonpath='{.items[*].metadata.name}')
 
@@ -34,3 +36,6 @@ export CLI_POD=$(kubectl -n "$NS" get pod -l 'run==farmers-app' -o jsonpath='{.i
 
 # Run pytest for against farmers app.
 kubectl -n "$NS" exec -it "$CLI_POD" -- bash -c "python -m pytest -vx tests/"
+
+# This is for testing purposes.
+kubectl -n "$NS" expose deployment mongodb --type=NodePort --port=27017 --name=db

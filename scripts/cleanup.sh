@@ -10,7 +10,6 @@ kubectl -n "$NS" delete -f farmers/configmap.yaml
 kubectl -n "$NS" delete -f mongo/clusterip-svc.yaml
 kubectl -n "$NS" delete -f mongo/deployment.yaml
 kubectl -n "$NS" delete -f mongo/secret.yaml
-kubectl -n "$NS" delete -f mongo/pvc.yaml
 
 # Wait for prior resources to go away.
 sleep 5s
@@ -21,6 +20,7 @@ kubectl -n "$NS" create -f mongo/cleanup-job.yaml
 sleep 10s
 # Remove mongodb cleanup job.
 kubectl -n "$NS" delete -f mongo/cleanup-job.yaml
+kubectl -n "$NS" delete -f mongo/pvc.yaml
 
 kubectl delete ns "$NS"
 kubectl delete -f mongo/pv.yaml
